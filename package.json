@@ -1,0 +1,14 @@
+{
+  "name": "star-md-sessionid-website",
+  "version": "1.0.0",
+  "description": "Star MD SessionID pairing website",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.7",
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2"
+  }
+}

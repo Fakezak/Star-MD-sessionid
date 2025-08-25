@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Star MD - SessionID Generator</title>
+    <style>
+        @keyframes glow {0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }}
+        body { margin:0; font-family:'Arial'; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background: linear-gradient(-45deg, #6e0dd0, #ff0080, #00f0ff, #fffa00); background-size:400% 400%; animation: glow 15s ease infinite; color:#fff; overflow:hidden;}
+        h1 {font-size:3em; margin-bottom:20px; text-shadow: 0 0 10px #fff, 0 0 20px #ff0080, 0 0 30px #6e0dd0;}
+        select, input, button { padding:15px; margin:10px; border:none; border-radius:10px; font-size:1em; outline:none;}
+        input, select { width:250px; text-align:center; }
+        button { background:#ff0080; color:#fff; cursor:pointer; font-weight:bold; box-shadow:0 0 15px #ff0080, 0 0 30px #6e0dd0; transition:0.3s; }
+        button:hover { transform:scale(1.1); box-shadow:0 0 25px #ff0080, 0 0 50px #6e0dd0; }
+        p { margin-top:20px; font-size:1.1em; text-align:center; max-width:600px; word-wrap:break-word; }
+    </style>
+</head>
+<body>
+    <h1>Star MD - SessionID Generator</h1>
+
+    <select id="country">
+        <option value="+1">🇺🇸 USA (+1)</option>
+        <option value="+44">🇬🇧 UK (+44)</option>
+        <option value="+91">🇮🇳 India (+91)</option>
+        <option value="+1876" selected>🇯🇲 Jamaica (+1876)</option>
+        <option value="+81">🇯🇵 Japan (+81)</option>
+        <option value="+61">🇦🇺 Australia (+61)</option>
+        <option value="+49">🇩🇪 Germany (+49)</option>
+    </select>
+
+    <input type="text" id="number" placeholder="Enter your number (without country code)">
+    <button onclick="generateCode()">Generate Pairing Code</button>
+
+    <p id="output"></p>
+
+    <audio id="bgmusic" autoplay loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-epic.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        async function generateCode() {
+            const countryCode = document.getElementById("country").value;
+            const numberInput = document.getElementById("number").value.trim();
+            if(!numberInput) return alert("Enter your number!");
+            const fullNumber = countryCode + numberInput;
+            const res = await fetch("/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ number: fullNumber })
+            });
+            const data = await res.json();
+            document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
