@@ -4,83 +4,43 @@
     <meta charset="UTF-8">
     <title>Star MD - SessionID Generator</title>
     <style>
-        @keyframes glow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        body {
-            margin:0;
-            font-family:'Arial';
-            height:100vh;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            align-items:center;
-            background: linear-gradient(-45deg, #6e0dd0, #ff0080, #00f0ff, #fffa00);
-            background-size:400% 400%;
-            animation: glow 15s ease infinite;
-            color:#fff;
-            overflow:hidden;
-            text-align:center;
-        }
-        h1 {
-            font-size:3em;
-            margin-bottom:20px;
-            text-shadow: 0 0 10px #fff, 0 0 20px #ff0080, 0 0 30px #6e0dd0;
-        }
-        select, input, button {
-            padding:15px;
-            margin:10px;
-            border:none;
-            border-radius:10px;
-            font-size:1em;
-            outline:none;
-        }
-        input, select {
-            width:250px;
-            text-align:center;
-        }
-        button {
-            background:#ff0080;
-            color:#fff;
-            cursor:pointer;
-            font-weight:bold;
-            box-shadow:0 0 15px #ff0080, 0 0 30px #6e0dd0;
-            transition:0.3s;
-        }
-        button:hover {
-            transform:scale(1.1);
-            box-shadow:0 0 25px #ff0080, 0 0 50px #6e0dd0;
-        }
-        p {
-            margin-top:20px;
-            font-size:1.1em;
-            max-width:600px;
-            word-wrap:break-word;
-            white-space:pre-wrap;
-        }
-        a {
-            display:none;
-            margin-top:15px;
-            padding:12px 20px;
-            border-radius:10px;
-            background:#00f0ff;
-            color:#000;
-            text-decoration:none;
-            font-weight:bold;
-            box-shadow:0 0 10px #00f0ff, 0 0 20px #00f0ff;
-        }
-        a:hover {
-            background:#fff;
-            color:#000;
-        }
+        @keyframes glow {0% { background-position:0% 50%; }50% { background-position:100% 50%; }100% { background-position:0% 50%; }}
+        body { margin:0; font-family:'Arial'; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background: linear-gradient(-45deg, #6e0dd0, #ff0080, #00f0ff, #fffa00); background-size:400% 400%; animation: glow 15s ease infinite; color:#fff; overflow:hidden;}
+        h1 {font-size:3em; margin-bottom:20px; text-shadow: 0 0 10px #fff,0 0 20px #ff0080,0 0 30px #6e0dd0;}
+        input, button { padding:15px; margin:10px; border:none; border-radius:10px; font-size:1em; outline:none;}
+        input { width:250px; text-align:center; }
+        button { background:#ff0080; color:#fff; cursor:pointer; font-weight:bold; box-shadow:0 0 15px #ff0080,0 0 30px #6e0dd0; transition:0.3s; }
+        button:hover { transform:scale(1.1); box-shadow:0 0 25px #ff0080,0 0 50px #6e0dd0; }
+        p { margin-top:20px; font-size:1.1em; text-align:center; max-width:600px; word-wrap:break-word; }
     </style>
 </head>
 <body>
-    <h1>⭐ Star MD - SessionID Generator ⭐</h1>
+    <h1>Star MD - SessionID Generator</h1>
 
-    <select id="country">
+    <input type="text" id="number" placeholder="Enter your number (18768375254)">
+    <button onclick="generateCode()">Generate Pair Code</button>
+    <p id="output"></p>
+
+    <script>
+        async function generateCode() {
+            const numberInput = document.getElementById("number").value.trim()
+            if (!numberInput) return alert("Enter your number!")
+
+            try {
+                const res = await fetch("https://star-md-session.up.railway.app/pair", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ number: numberInput })
+                })
+                const data = await res.json()
+                document.getElementById("output").innerText = data.success ? "Your Pair Code: " + data.pairCode : "Error: " + data.error
+            } catch (err) {
+                document.getElementById("output").innerText = "❌ Failed to fetch: " + err
+            }
+        }
+    </script>
+</body>
+</html>    <select id="country">
         <option value="+1">🇺🇸 USA (+1)</option>
         <option value="+44">🇬🇧 UK (+44)</option>
         <option value="+91">🇮🇳 India (+91)</option>
