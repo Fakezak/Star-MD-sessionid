@@ -1,40 +1,50 @@
-import express from "express";
-import { Boom } from "@hapi/boom";
-import makeWASocket, { useMultiFileAuthState, fetchLatestBaileysVersion } from "@whiskeysockets/baileys";
-import cors from "cors";
-import fs from "fs";
+import makeWASocket, { useMultiFileAuthState } from "@whiskeysockets/baileys"
+import express from "express"
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const app = express()
+const port = 5000
 
-let sock;
-let sessionData = null;
+async function connectBot() {
+    const { state, saveCreds } = await useMultiFileAuthState("auth_info")
 
-// Function to start WhatsApp with pairing code
-async function startBot(number) {
-    const { state, saveCreds } = await useMultiFileAuthState("./session");
-    const { version } = await fetchLatestBaileysVersion();
-
-    sock = makeWASocket({
-        version,
+    const sock = makeWASocket({
         auth: state,
-        printQRInTerminal: true,
-    });
+        printQRInTerminal: true // 👈 prints QR in terminal
+    })
 
-    sock.ev.on("creds.update", saveCreds);
+    sock.ev.on("creds.update", saveCreds)
 
-    // Example auto reply
-    sock.ev.on("messages.upsert", async (m) => {
-        const msg = m.messages[0];
-        if (!msg.message) return;
-        const from = msg.key.remoteJid;
-        const text = msg.message.conversation || msg.message.extendedTextMessage?.text;
+    // listen for messages
+    sock.ev.on("messages.upsert", async ({ messages }) => {
+        const msg = messages[0]
+        if (!msg.message) return
 
-        if (text?.toLowerCase() === "hi") {
-            await sock.sendMessage(from, { text: "Hello 👋 I’m Star-MD Bot" });
+        let text = msg.message.conversation || msg.message.extendedTextMessage?.text
+        console.log("📩 New message:", text)
+
+        if (text === ".hi") {
+            await sock.sendMessage(msg.key.remoteJid, { text: "Hello! 👋 This is your bot." })
         }
-        if (text?.toLowerCase() === "menu") {
+    })
+
+    return sock
+}
+
+connectBot()
+
+// simple express API for generating pair code
+app.get("/pair", async (req, res) => {
+    const { state } = await useMultiFileAuthState("auth_info")
+    const sock = makeWASocket({ auth: state })
+
+    // Baileys supports "code pairing" here 👇
+    const code = await sock.requestPairingCode("18768375254") // 👈 put your full number WITH country code
+    res.send({ code })
+})
+
+app.listen(port, () => {
+    console.log(`✅ Server running on http://localhost:${port}`)
+})        if (text?.toLowerCase() === "menu") {
             await sock.sendMessage(from, { text: "⭐ Star-MD Bot Menu ⭐\n1. !ping\n2. !time\n3. !joke" });
         }
         if (text?.toLowerCase() === "!ping") {
